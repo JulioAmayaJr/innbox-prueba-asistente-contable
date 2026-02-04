@@ -3,7 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
-const MAIL_TO = "reclutamiento@rrhh.com";
+const MAIL_TO = "chatunivowhats@gmail.com";
 const MAIL_FROM = "Prueba Objetiva <onboarding@resend.dev>";
 
 function normalizeSelectedCases(v: any): string[] {
