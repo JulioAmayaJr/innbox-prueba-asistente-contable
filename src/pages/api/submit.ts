@@ -5,8 +5,9 @@ import { Resend } from "resend";
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
 
 
-const TO_EMAIL = "chatunivowhats@gmail.com";
-const FROM_EMAIL = "Prueba Objetiva <onboarding@resend.dev>";
+const TO_EMAIL = "reclutamiento@rrhh.com";
+const FROM_EMAIL = "Prueba Objetiva <no-reply@codefactory.lat>";
+
 
 
 function normalizeSelectedCases(v: any): string[] {
