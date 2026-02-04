@@ -3,9 +3,10 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
+
 const MAIL_TO = "reclutamiento@rrhh.com";
-const TEST_FALLBACK_TO = "chatunivowhats@gmail.com"; // tu correo permitido por Resend en testing
-const FORCE_TEST_MODE = false;
+const TEST_FALLBACK_TO = "chatunivowhats@gmail.com";
+const FORCE_TEST_MODE = true;
 
 const to = FORCE_TEST_MODE ? [TEST_FALLBACK_TO] : [MAIL_TO];
 
@@ -220,7 +221,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { error } = await resend.emails.send({
       from: MAIL_FROM,
-      to: [MAIL_TO],
+      to,
       cc: data.email ? [String(data.email)] : undefined,
       subject,
       text:
