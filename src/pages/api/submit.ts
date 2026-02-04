@@ -4,13 +4,10 @@ import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
 
-const MAIL_TO = "reclutamiento@rrhh.com";
-const TEST_FALLBACK_TO = "chatunivowhats@gmail.com";
-const FORCE_TEST_MODE = true;
 
-const to = FORCE_TEST_MODE ? [TEST_FALLBACK_TO] : [MAIL_TO];
+const TO_EMAIL = "chatunivowhats@gmail.com";
+const FROM_EMAIL = "Prueba Objetiva <onboarding@resend.dev>";
 
-const MAIL_FROM = "Prueba Objetiva <onboarding@resend.dev>";
 
 function normalizeSelectedCases(v: any): string[] {
   if (!v) return [];
@@ -220,8 +217,8 @@ export const POST: APIRoute = async ({ request }) => {
     const resend = new Resend(RESEND_API_KEY);
 
     const { error } = await resend.emails.send({
-      from: MAIL_FROM,
-      to,
+      from: FROM_EMAIL,
+      to: TO_EMAIL,
       cc: data.email ? [String(data.email)] : undefined,
       subject,
       text:
