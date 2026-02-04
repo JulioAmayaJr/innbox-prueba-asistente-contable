@@ -1,5 +1,10 @@
 import type { APIRoute } from "astro";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { Resend } from "resend";
+
+const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
+const MAIL_TO = "reclutamiento@rrhh.com";
+const MAIL_FROM = "Prueba Objetiva <onboarding@resend.dev>";
 
 function normalizeSelectedCases(v: any): string[] {
   if (!v) return [];
@@ -37,12 +42,6 @@ function base64FromUint8(arr: Uint8Array) {
   return btoa(s);
 }
 
-function parseFrom(from: string) {
-  const m = from.match(/^\s*([^<]+?)\s*<([^>]+)>\s*$/);
-  if (m) return { name: m[1].trim(), email: m[2].trim() };
-  return { name: "Prueba Objetiva", email: from.trim() };
-}
-
 async function buildExamPdf(data: any) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -64,13 +63,7 @@ async function buildExamPdf(data: any) {
   };
 
   const drawText = (t: string, size = 11, bold = false, color = rgb(0.1, 0.1, 0.1)) => {
-    page.drawText(t, {
-      x: margin,
-      y,
-      size,
-      font: bold ? fontBold : font,
-      color
-    });
+    page.drawText(t, { x: margin, y, size, font: bold ? fontBold : font, color });
     y -= size + 6;
   };
 
@@ -85,13 +78,7 @@ async function buildExamPdf(data: any) {
       borderColor: rgb(0.75, 0.75, 0.9),
       borderWidth: 1
     });
-    page.drawText(title, {
-      x: margin + 10,
-      y: y - 16,
-      size: 12,
-      font: fontBold,
-      color: rgb(0.2, 0.2, 0.45)
-    });
+    page.drawText(title, { x: margin + 10, y: y - 16, size: 12, font: fontBold, color: rgb(0.2, 0.2, 0.45) });
     y -= 34;
   };
 
@@ -170,57 +157,21 @@ async function buildExamPdf(data: any) {
   };
 
   caseBlock("caso1", "CASO 1: Programa de Aceleración – Sector Agrícola", [
-    {
-      t: "1.1 Documentación y Control Inicial (33%)",
-      body: "¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.",
-      k: "caso1_p1"
-    },
-    {
-      t: "1.2 Organización Digital (33%)",
-      body: "Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.",
-      k: "caso1_p2"
-    },
-    {
-      t: "1.3 Control Presupuestario (34%)",
-      body: "Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.",
-      k: "caso1_p3"
-    }
+    { t: "1.1 Documentación y Control Inicial (33%)", body: "¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.", k: "caso1_p1" },
+    { t: "1.2 Organización Digital (33%)", body: "Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.", k: "caso1_p2" },
+    { t: "1.3 Control Presupuestario (34%)", body: "Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.", k: "caso1_p3" }
   ]);
 
   caseBlock("caso2", "CASO 2: Programa de Capital Semilla – 25 MIPYMES", [
-    {
-      t: "2.1 Herramienta de Control (30%)",
-      body: "¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.",
-      k: "caso2_p1"
-    },
-    {
-      t: "2.2 Diseño de Sistema de Control (40%)",
-      body: "Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.",
-      k: "caso2_p2"
-    },
-    {
-      t: "2.3 Gestión de Incumplimientos (30%)",
-      body: "Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Acciones inmediatas, seguimiento, escalación y medidas preventivas.",
-      k: "caso2_p3"
-    }
+    { t: "2.1 Herramienta de Control (30%)", body: "¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.", k: "caso2_p1" },
+    { t: "2.2 Diseño de Sistema de Control (40%)", body: "Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.", k: "caso2_p2" },
+    { t: "2.3 Gestión de Incumplimientos (30%)", body: "Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Acciones inmediatas, seguimiento, escalación y medidas preventivas.", k: "caso2_p3" }
   ]);
 
   caseBlock("caso3", "CASO 3: Digitalización con ERP – 200 MIPYMES", [
-    {
-      t: "3.1 Identificación de Riesgos (30%)",
-      body: "Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto y medida preventiva.",
-      k: "caso3_p1"
-    },
-    {
-      t: "3.2 Información Crítica en el ERP (35%)",
-      body: "¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.",
-      k: "caso3_p2"
-    },
-    {
-      t: "3.3 Gestión del Tiempo y Prioridades (35%)",
-      body: "Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?",
-      k: "caso3_p3"
-    }
+    { t: "3.1 Identificación de Riesgos (30%)", body: "Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto y medida preventiva.", k: "caso3_p1" },
+    { t: "3.2 Información Crítica en el ERP (35%)", body: "¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.", k: "caso3_p2" },
+    { t: "3.3 Gestión del Tiempo y Prioridades (35%)", body: "Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?", k: "caso3_p3" }
   ]);
 
   drawSection("SECCIÓN 2 — Conocimientos Técnicos");
@@ -231,31 +182,11 @@ async function buildExamPdf(data: any) {
   }
 
   drawSection("SECCIÓN 3 — Caso Ético");
-  drawQA(
-    "3.1 Acción Inmediata (15%)",
-    "¿Qué acción tomaría de inmediato al detectar esta situación? Pasos concretos en las próximas 2 horas.",
-    val(data, "etica_p1")
-  );
-  drawQA(
-    "3.2 Comunicación Profesional (20%)",
-    "¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (correo/mensaje).",
-    val(data, "etica_p2")
-  );
-  drawQA(
-    "3.3 Análisis de Riesgos (25%)",
-    "¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5.",
-    val(data, "etica_p3")
-  );
-  drawQA(
-    "3.4 Propuesta de Solución (25%)",
-    "¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, manteniendo orden y cumplimiento?",
-    val(data, "etica_p4")
-  );
-  drawQA(
-    "3.5 Mejora de Procesos (15%)",
-    "¿Qué mejora de proceso sugeriría para prevenirlo estructuralmente? Controles/sistemas/políticas.",
-    val(data, "etica_p5")
-  );
+  drawQA("3.1 Acción Inmediata (15%)", "¿Qué acción tomaría de inmediato al detectar esta situación? Pasos concretos en las próximas 2 horas.", val(data, "etica_p1"));
+  drawQA("3.2 Comunicación Profesional (20%)", "¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (correo/mensaje).", val(data, "etica_p2"));
+  drawQA("3.3 Análisis de Riesgos (25%)", "¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5.", val(data, "etica_p3"));
+  drawQA("3.4 Propuesta de Solución (25%)", "¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, manteniendo orden y cumplimiento?", val(data, "etica_p4"));
+  drawQA("3.5 Mejora de Procesos (15%)", "¿Qué mejora de proceso sugeriría para prevenirlo estructuralmente? Controles/sistemas/políticas.", val(data, "etica_p5"));
 
   drawSection("Autoevaluación (No puntuada)");
   drawQA("Auto 1", "¿Qué sección le resultó más desafiante y por qué?", val(data, "auto_p1"));
@@ -278,46 +209,31 @@ export const POST: APIRoute = async ({ request }) => {
     const pdfBytes = await buildExamPdf(data);
     const filename = `prueba-objetiva-${(val(data, "nombre") || "candidato").replace(/\s+/g, "_")}.pdf`;
 
-    const MAIL_TO = "reclutamiento@rrhh.com";
-    const MAIL_FROM = "Prueba Objetiva <administracion@innbox.sv>";
-
-    const fromParsed = parseFrom(MAIL_FROM);
     const subject = `Prueba Objetiva — ${val(data, "nombre") || "Candidato"} — ${val(data, "email") || ""}`;
 
-    const mail = {
-      personalizations: [{ to: [{ email: MAIL_TO }] }],
-      from: { email: fromParsed.email, name: fromParsed.name },
+    const resend = new Resend(RESEND_API_KEY);
+
+    const { error } = await resend.emails.send({
+      from: MAIL_FROM,
+      to: [MAIL_TO],
+      cc: data.email ? [String(data.email)] : undefined,
       subject,
-      content: [
-        {
-          type: "text/plain",
-          value:
-            `Se adjunta PDF con respuestas.\n\n` +
-            `Nombre: ${val(data, "nombre")}\n` +
-            `Email: ${val(data, "email")}\n` +
-            `Teléfono: ${val(data, "telefono")}\n` +
-            `Inicio: ${val(data, "fecha_inicio")}\n`
-        }
-      ],
+      text:
+        `Se adjunta PDF con respuestas.\n\n` +
+        `Nombre: ${val(data, "nombre")}\n` +
+        `Email: ${val(data, "email")}\n` +
+        `Teléfono: ${val(data, "telefono")}\n` +
+        `Inicio: ${val(data, "fecha_inicio")}\n`,
       attachments: [
         {
           filename,
-          type: "application/pdf",
-          disposition: "attachment",
           content: base64FromUint8(pdfBytes)
         }
       ]
-    };
-
-    const resp = await fetch("https://api.mailchannels.net/tx/v1/send", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(mail)
     });
 
-    if (!resp.ok) {
-      const t = await resp.text();
-      return new Response(JSON.stringify({ message: `MailChannels error: ${resp.status} ${t}` }), { status: 500 });
+    if (error) {
+      return new Response(JSON.stringify({ message: `Resend error: ${error.message}` }), { status: 500 });
     }
 
     return new Response(JSON.stringify({ ok: true }), {
