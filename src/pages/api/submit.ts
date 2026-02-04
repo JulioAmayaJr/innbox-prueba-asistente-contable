@@ -3,7 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
-const TO_EMAIL = "chatunivowhats@gmail.com";
+const TO_EMAIL = "innbox.sv@gmail.com";
 const FROM_EMAIL = "Prueba Objetiva <no-reply@codefactory.lat>";
 
 const TECH_QUESTIONS = [
