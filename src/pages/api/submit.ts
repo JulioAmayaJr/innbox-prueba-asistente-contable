@@ -28,6 +28,21 @@ function wrapText(text: string, maxChars: number) {
   return lines;
 }
 
+function base64FromUint8(arr: Uint8Array) {
+  let s = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < arr.length; i += chunk) {
+    s += String.fromCharCode(...arr.subarray(i, i + chunk));
+  }
+  return btoa(s);
+}
+
+function parseFrom(from: string) {
+  const m = from.match(/^\s*([^<]+?)\s*<([^>]+)>\s*$/);
+  if (m) return { name: m[1].trim(), email: m[2].trim() };
+  return { name: "Prueba Objetiva", email: from.trim() };
+}
+
 async function buildExamPdf(data: any) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -41,6 +56,13 @@ async function buildExamPdf(data: any) {
   let page = pdf.addPage([pageW, pageH]);
   let y = pageH - margin;
 
+  const ensureSpace = (needed: number) => {
+    if (y - needed < margin) {
+      page = pdf.addPage([pageW, pageH]);
+      y = pageH - margin;
+    }
+  };
+
   const drawText = (t: string, size = 11, bold = false, color = rgb(0.1, 0.1, 0.1)) => {
     page.drawText(t, {
       x: margin,
@@ -50,13 +72,6 @@ async function buildExamPdf(data: any) {
       color
     });
     y -= size + 6;
-  };
-
-  const ensureSpace = (needed: number) => {
-    if (y - needed < margin) {
-      page = pdf.addPage([pageW, pageH]);
-      y = pageH - margin;
-    }
   };
 
   const drawSection = (title: string) => {
@@ -70,7 +85,13 @@ async function buildExamPdf(data: any) {
       borderColor: rgb(0.75, 0.75, 0.9),
       borderWidth: 1
     });
-    page.drawText(title, { x: margin + 10, y: y - 16, size: 12, font: fontBold, color: rgb(0.2, 0.2, 0.45) });
+    page.drawText(title, {
+      x: margin + 10,
+      y: y - 16,
+      size: 12,
+      font: fontBold,
+      color: rgb(0.2, 0.2, 0.45)
+    });
     y -= 34;
   };
 
@@ -128,6 +149,7 @@ async function buildExamPdf(data: any) {
   };
 
   const now = new Date().toISOString();
+  const casos = normalizeSelectedCases(data.caso_seleccionado);
 
   drawText("PRUEBA OBJETIVA — RESPUESTAS", 16, true);
   drawText(`Enviado: ${now}`, 10, false, rgb(0.35, 0.35, 0.35));
@@ -137,9 +159,8 @@ async function buildExamPdf(data: any) {
   drawText(`Inicio: ${val(data, "fecha_inicio")}`, 10);
   y -= 10;
 
-  const casos = normalizeSelectedCases(data.caso_seleccionado);
-
   drawSection("SECCIÓN 1 — Casos Prácticos");
+
   const caseBlock = (id: string, title: string, qs: { t: string; body: string; k: string }[]) => {
     if (!casos.includes(id)) return;
     drawText(title, 12, true, rgb(0.2, 0.2, 0.45));
@@ -149,21 +170,57 @@ async function buildExamPdf(data: any) {
   };
 
   caseBlock("caso1", "CASO 1: Programa de Aceleración – Sector Agrícola", [
-    { t: "1.1 Documentación y Control Inicial (33%)", body: "¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.", k: "caso1_p1" },
-    { t: "1.2 Organización Digital (33%)", body: "Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.", k: "caso1_p2" },
-    { t: "1.3 Control Presupuestario (34%)", body: "Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.", k: "caso1_p3" }
+    {
+      t: "1.1 Documentación y Control Inicial (33%)",
+      body: "¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.",
+      k: "caso1_p1"
+    },
+    {
+      t: "1.2 Organización Digital (33%)",
+      body: "Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.",
+      k: "caso1_p2"
+    },
+    {
+      t: "1.3 Control Presupuestario (34%)",
+      body: "Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.",
+      k: "caso1_p3"
+    }
   ]);
 
   caseBlock("caso2", "CASO 2: Programa de Capital Semilla – 25 MIPYMES", [
-    { t: "2.1 Herramienta de Control (30%)", body: "¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.", k: "caso2_p1" },
-    { t: "2.2 Diseño de Sistema de Control (40%)", body: "Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.", k: "caso2_p2" },
-    { t: "2.3 Gestión de Incumplimientos (30%)", body: "Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Acciones inmediatas, seguimiento, escalación y medidas preventivas.", k: "caso2_p3" }
+    {
+      t: "2.1 Herramienta de Control (30%)",
+      body: "¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.",
+      k: "caso2_p1"
+    },
+    {
+      t: "2.2 Diseño de Sistema de Control (40%)",
+      body: "Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.",
+      k: "caso2_p2"
+    },
+    {
+      t: "2.3 Gestión de Incumplimientos (30%)",
+      body: "Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Acciones inmediatas, seguimiento, escalación y medidas preventivas.",
+      k: "caso2_p3"
+    }
   ]);
 
   caseBlock("caso3", "CASO 3: Digitalización con ERP – 200 MIPYMES", [
-    { t: "3.1 Identificación de Riesgos (30%)", body: "Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto y medida preventiva.", k: "caso3_p1" },
-    { t: "3.2 Información Crítica en el ERP (35%)", body: "¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.", k: "caso3_p2" },
-    { t: "3.3 Gestión del Tiempo y Prioridades (35%)", body: "Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?", k: "caso3_p3" }
+    {
+      t: "3.1 Identificación de Riesgos (30%)",
+      body: "Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto y medida preventiva.",
+      k: "caso3_p1"
+    },
+    {
+      t: "3.2 Información Crítica en el ERP (35%)",
+      body: "¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.",
+      k: "caso3_p2"
+    },
+    {
+      t: "3.3 Gestión del Tiempo y Prioridades (35%)",
+      body: "Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?",
+      k: "caso3_p3"
+    }
   ]);
 
   drawSection("SECCIÓN 2 — Conocimientos Técnicos");
@@ -174,11 +231,31 @@ async function buildExamPdf(data: any) {
   }
 
   drawSection("SECCIÓN 3 — Caso Ético");
-  drawQA("3.1 Acción Inmediata (15%)", "¿Qué acción tomaría de inmediato al detectar esta situación? Pasos concretos en las próximas 2 horas.", val(data, "etica_p1"));
-  drawQA("3.2 Comunicación Profesional (20%)", "¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (correo/mensaje).", val(data, "etica_p2"));
-  drawQA("3.3 Análisis de Riesgos (25%)", "¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5.", val(data, "etica_p3"));
-  drawQA("3.4 Propuesta de Solución (25%)", "¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, manteniendo orden y cumplimiento?", val(data, "etica_p4"));
-  drawQA("3.5 Mejora de Procesos (15%)", "¿Qué mejora de proceso sugeriría para prevenirlo estructuralmente? Controles/sistemas/políticas.", val(data, "etica_p5"));
+  drawQA(
+    "3.1 Acción Inmediata (15%)",
+    "¿Qué acción tomaría de inmediato al detectar esta situación? Pasos concretos en las próximas 2 horas.",
+    val(data, "etica_p1")
+  );
+  drawQA(
+    "3.2 Comunicación Profesional (20%)",
+    "¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (correo/mensaje).",
+    val(data, "etica_p2")
+  );
+  drawQA(
+    "3.3 Análisis de Riesgos (25%)",
+    "¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5.",
+    val(data, "etica_p3")
+  );
+  drawQA(
+    "3.4 Propuesta de Solución (25%)",
+    "¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, manteniendo orden y cumplimiento?",
+    val(data, "etica_p4")
+  );
+  drawQA(
+    "3.5 Mejora de Procesos (15%)",
+    "¿Qué mejora de proceso sugeriría para prevenirlo estructuralmente? Controles/sistemas/políticas.",
+    val(data, "etica_p5")
+  );
 
   drawSection("Autoevaluación (No puntuada)");
   drawQA("Auto 1", "¿Qué sección le resultó más desafiante y por qué?", val(data, "auto_p1"));
@@ -201,20 +278,15 @@ export const POST: APIRoute = async ({ request }) => {
     const pdfBytes = await buildExamPdf(data);
     const filename = `prueba-objetiva-${(val(data, "nombre") || "candidato").replace(/\s+/g, "_")}.pdf`;
 
-    const toAdmin = (import.meta.env.MAIL_TO || "").trim();
-    const from = (import.meta.env.MAIL_FROM || "Prueba Objetiva <no-reply@innbox.sv>").trim();
+    const MAIL_TO = "reclutamiento@rrhh.com";
+    const MAIL_FROM = "Prueba Objetiva <administracion@innbox.sv>";
 
-    if (!toAdmin) {
-      return new Response(JSON.stringify({ message: "Falta MAIL_TO en variables de entorno." }), { status: 500 });
-    }
-
+    const fromParsed = parseFrom(MAIL_FROM);
     const subject = `Prueba Objetiva — ${val(data, "nombre") || "Candidato"} — ${val(data, "email") || ""}`;
 
     const mail = {
-      personalizations: [
-        { to: [{ email: toAdmin }] }
-      ],
-      from: { email: from.match(/<(.+)>/)?.[1] || from, name: from.includes("<") ? from.split("<")[0].trim() : "Prueba Objetiva" },
+      personalizations: [{ to: [{ email: MAIL_TO }] }],
+      from: { email: fromParsed.email, name: fromParsed.name },
       subject,
       content: [
         {
@@ -232,7 +304,7 @@ export const POST: APIRoute = async ({ request }) => {
           filename,
           type: "application/pdf",
           disposition: "attachment",
-          content: Buffer.from(pdfBytes).toString("base64")
+          content: base64FromUint8(pdfBytes)
         }
       ]
     };
