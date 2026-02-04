@@ -6,6 +6,59 @@ const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
 const TO_EMAIL = "chatunivowhats@gmail.com";
 const FROM_EMAIL = "Prueba Objetiva <no-reply@codefactory.lat>";
 
+const TECH_QUESTIONS = [
+  {
+    title: "Pregunta 1: IVA en El Salvador",
+    body: "En El Salvador, el IVA se declara y paga generalmente de forma:",
+    options: { a: "Trimestral", b: "Anual", c: "Mensual", d: "Semestral" }
+  },
+  {
+    title: "Pregunta 2: Documentación Legal",
+    body: "¿Cuál documento respalda legalmente una venta de bienes o servicios?",
+    options: { a: "Cotización", b: "Factura o comprobante fiscal", c: "Orden de compra interna", d: "Recibo simple" }
+  },
+  {
+    title: "Pregunta 3: Conciliación Bancaria",
+    body: "Una conciliación bancaria sirve principalmente para:",
+    options: { a: "Calcular impuestos", b: "Comparar los registros contables con el estado bancario", c: "Elaborar presupuestos", d: "Controlar inventarios" }
+  },
+  {
+    title: "Pregunta 4: Cuentas por Pagar",
+    body: "¿Cuál es una buena práctica en el control de cuentas por pagar?",
+    options: { a: "Pagar sin revisar documentación", b: "Registrar pagos solo al final del mes", c: "Verificar factura, autorización y fecha de vencimiento", d: "Pagar únicamente cuando el proveedor insiste" }
+  },
+  {
+    title: "Pregunta 5: Sistemas ERP",
+    body: "En un entorno de trabajo con ERP, la principal ventaja es:",
+    options: { a: "Eliminar la contabilidad", b: "Centralizar y automatizar la información", c: "Reducir responsabilidades", d: "Evitar controles internos" }
+  },
+  {
+    title: "Pregunta 6: Retenciones de Renta",
+    body: "Un consultor independiente emite factura por $2,500 por servicios profesionales. Como empresa contratante en El Salvador, debe aplicar:",
+    options: { a: "No aplicar ninguna retención", b: "Retención del 10% sobre el monto neto ($250)", c: "Retención del 13% de IVA ($325)", d: "Retención del 10% sobre el monto con IVA incluido" }
+  },
+  {
+    title: "Pregunta 7: Clasificación de Gastos",
+    body: "El pago de $800 por alquiler mensual de oficina debe clasificarse contablemente como:",
+    options: { a: "Activo corriente", b: "Gasto de administración u operación", c: "Pasivo corriente", d: "Costo de ventas" }
+  },
+  {
+    title: "Pregunta 8: Control Presupuestario",
+    body: "Tiene un proyecto con presupuesto de $50,000. A mitad de período ha ejecutado $32,000. ¿Qué porcentaje de ejecución tiene?",
+    options: { a: "32%", b: "64%", c: "68%", d: "50%" }
+  },
+  {
+    title: "Pregunta 9: Facturación con IVA",
+    body: "Debe facturar servicios de consultoría por $4,000. ¿Cuál es el monto total a cobrar (incluyendo IVA 13%)?",
+    options: { a: "$4,000", b: "$4,130", c: "$4,520", d: "$4,680" }
+  },
+  {
+    title: "Pregunta 10: Organización Documental",
+    body: "Para organizar 300 facturas de múltiples proveedores y proyectos en Google Drive, la estructura MÁS eficiente sería:",
+    options: { a: "Una carpeta con todas las facturas ordenadas cronológicamente", b: "Carpetas por año > mes > proveedor", c: "Carpetas por proyecto > tipo de documento > período", d: "Carpetas por rango de monto" }
+  }
+] as const;
+
 function normalizeSelectedCases(v: any): string[] {
   if (!v) return [];
   if (Array.isArray(v)) return v.map(String);
@@ -73,6 +126,14 @@ function qa(title: string, question: string, answer: string) {
   `;
 }
 
+function optionLabel(i0: number, key: string) {
+  const q = TECH_QUESTIONS[i0];
+  const k = (key || "").toLowerCase();
+  const opt = (q?.options as any)?.[k];
+  if (!k) return "(Sin selección)";
+  return opt ? `${k}) ${opt}` : k;
+}
+
 function buildEmailHtml(data: any) {
   const casos = normalizeSelectedCases(data.caso_seleccionado);
 
@@ -125,9 +186,18 @@ function buildEmailHtml(data: any) {
 
   let sec2 = sec("SECCIÓN 2 — Conocimientos Técnicos");
   for (let i = 1; i <= 10; i++) {
-    const chosen = val(data, `p${i}`) || "(Sin selección)";
+    const q = TECH_QUESTIONS[i - 1];
+    const chosenKey = val(data, `p${i}`);
     const just = val(data, `p${i}_just`);
-    sec2 += qa(`Pregunta ${i}`, `Opción elegida: ${chosen}`, just);
+    const qText =
+      `${q.title}\n` +
+      `${q.body}\n` +
+      `a) ${q.options.a}\n` +
+      `b) ${q.options.b}\n` +
+      `c) ${q.options.c}\n` +
+      `d) ${q.options.d}\n\n` +
+      `Opción elegida: ${optionLabel(i - 1, chosenKey)}`;
+    sec2 += qa(q.title, qText, just);
   }
 
   const sec3 =
@@ -201,8 +271,7 @@ async function buildExamPdf(data: any) {
     const aLines = wrapText(answer || "(Sin respuesta)", maxChars);
 
     const qBlockH = 18 + qLines.length * lineH;
-    const aBlockH = 22 + aLines.length * lineH;
-    const total = 18 + qBlockH + 10 + aBlockH + 10;
+    const total = 18 + qBlockH + 10 + (22 + aLines.length * lineH) + 10;
 
     ensureSpace(total);
 
@@ -289,9 +358,18 @@ async function buildExamPdf(data: any) {
 
   drawSection("SECCIÓN 2 — Conocimientos Técnicos");
   for (let i = 1; i <= 10; i++) {
-    const chosen = val(data, `p${i}`);
+    const q = TECH_QUESTIONS[i - 1];
+    const chosenKey = val(data, `p${i}`);
     const just = val(data, `p${i}_just`);
-    drawQA(`Pregunta ${i}`, `Opción elegida: ${chosen || "(Sin selección)"}`, just);
+    const body =
+      `${q.title}\n` +
+      `${q.body}\n` +
+      `a) ${q.options.a}\n` +
+      `b) ${q.options.b}\n` +
+      `c) ${q.options.c}\n` +
+      `d) ${q.options.d}\n\n` +
+      `Opción elegida: ${optionLabel(i - 1, chosenKey)}`;
+    drawQA(q.title, body, just);
   }
 
   drawSection("SECCIÓN 3 — Caso Ético");
