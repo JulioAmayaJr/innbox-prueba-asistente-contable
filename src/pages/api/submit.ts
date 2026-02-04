@@ -3,7 +3,12 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
-const MAIL_TO = "chatunivowhats@gmail.com";
+const MAIL_TO = "reclutamiento@rrhh.com";
+const TEST_FALLBACK_TO = "chatunivowhats@gmail.com"; // tu correo permitido por Resend en testing
+const FORCE_TEST_MODE = false;
+
+const to = FORCE_TEST_MODE ? [TEST_FALLBACK_TO] : [MAIL_TO];
+
 const MAIL_FROM = "Prueba Objetiva <onboarding@resend.dev>";
 
 function normalizeSelectedCases(v: any): string[] {
