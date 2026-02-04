@@ -3,12 +3,8 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { Resend } from "resend";
 
 const RESEND_API_KEY = "re_DbmXJPxF_6CqjDHHKRMpkgzc71gujzBU9";
-
-
 const TO_EMAIL = "chatunivowhats@gmail.com";
 const FROM_EMAIL = "Prueba Objetiva <no-reply@codefactory.lat>";
-
-
 
 function normalizeSelectedCases(v: any): string[] {
   if (!v) return [];
@@ -46,6 +42,119 @@ function base64FromUint8(arr: Uint8Array) {
   return btoa(s);
 }
 
+function escapeHtml(s: string) {
+  return (s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function p(text: string) {
+  const t = escapeHtml(text || "");
+  return `<div style="margin:0 0 10px 0; white-space:pre-wrap; line-height:1.45;">${t}</div>`;
+}
+
+function qa(title: string, question: string, answer: string) {
+  const a = answer?.trim() ? answer.trim() : "(Sin respuesta)";
+  return `
+    <div style="border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin:0 0 14px 0;">
+      <div style="font-weight:700; font-size:14px; margin:0 0 8px 0;">${escapeHtml(title)}</div>
+      <div style="background:#f9fafb; border:1px solid #eef2f7; border-radius:10px; padding:10px; margin:0 0 10px 0;">
+        <div style="font-weight:600; margin:0 0 6px 0;">Pregunta</div>
+        ${p(question)}
+      </div>
+      <div style="background:#ecfdf5; border:1px solid #bbf7d0; border-radius:10px; padding:10px;">
+        <div style="font-weight:600; margin:0 0 6px 0;">Respuesta</div>
+        ${p(a)}
+      </div>
+    </div>
+  `;
+}
+
+function buildEmailHtml(data: any) {
+  const casos = normalizeSelectedCases(data.caso_seleccionado);
+
+  const header = `
+    <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; color:#111827;">
+      <div style="max-width:820px; margin:0 auto; padding:18px;">
+        <div style="border-radius:16px; padding:18px; background:#111827; color:#fff; margin-bottom:14px;">
+          <div style="font-size:18px; font-weight:800;">PRUEBA OBJETIVA — RESPUESTAS</div>
+          <div style="opacity:.9; margin-top:6px;">Nombre: ${escapeHtml(val(data, "nombre"))} · Email: ${escapeHtml(val(data, "email"))} · Tel: ${escapeHtml(val(data, "telefono"))}</div>
+          <div style="opacity:.9; margin-top:4px;">Inicio: ${escapeHtml(val(data, "fecha_inicio"))}</div>
+        </div>
+  `;
+
+  const sec = (title: string) => `
+    <div style="margin:18px 0 10px 0; padding:10px 12px; border:1px solid #dbeafe; background:#eff6ff; border-radius:12px; font-weight:800; color:#1e3a8a;">
+      ${escapeHtml(title)}
+    </div>
+  `;
+
+  const caseBlock = (id: string, title: string, qs: { t: string; body: string; k: string }[]) => {
+    if (!casos.includes(id)) return "";
+    const items = qs.map((q) => qa(q.t, q.body, val(data, q.k))).join("");
+    return `
+      <div style="margin:0 0 18px 0;">
+        <div style="font-weight:900; font-size:15px; color:#312e81; margin:0 0 10px 0;">
+          ${escapeHtml(title)}
+        </div>
+        ${items}
+      </div>
+    `;
+  };
+
+  const sec1 =
+    sec("SECCIÓN 1 — Casos Prácticos") +
+    caseBlock("caso1", "CASO 1: Programa de Aceleración – Sector Agrícola", [
+      { t: "1.1 Documentación y Control Inicial (33%)", body: "¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.", k: "caso1_p1" },
+      { t: "1.2 Organización Digital (33%)", body: "Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.", k: "caso1_p2" },
+      { t: "1.3 Control Presupuestario (34%)", body: "Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.", k: "caso1_p3" }
+    ]) +
+    caseBlock("caso2", "CASO 2: Programa de Capital Semilla – 25 MIPYMES", [
+      { t: "2.1 Herramienta de Control (30%)", body: "¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.", k: "caso2_p1" },
+      { t: "2.2 Diseño de Sistema de Control (40%)", body: "Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.", k: "caso2_p2" },
+      { t: "2.3 Gestión de Incumplimientos (30%)", body: "Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Acciones inmediatas, seguimiento, escalación y medidas preventivas.", k: "caso2_p3" }
+    ]) +
+    caseBlock("caso3", "CASO 3: Digitalización con ERP – 200 MIPYMES", [
+      { t: "3.1 Identificación de Riesgos (30%)", body: "Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto y medida preventiva.", k: "caso3_p1" },
+      { t: "3.2 Información Crítica en el ERP (35%)", body: "¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.", k: "caso3_p2" },
+      { t: "3.3 Gestión del Tiempo y Prioridades (35%)", body: "Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?", k: "caso3_p3" }
+    ]);
+
+  let sec2 = sec("SECCIÓN 2 — Conocimientos Técnicos");
+  for (let i = 1; i <= 10; i++) {
+    const chosen = val(data, `p${i}`) || "(Sin selección)";
+    const just = val(data, `p${i}_just`);
+    sec2 += qa(`Pregunta ${i}`, `Opción elegida: ${chosen}`, just);
+  }
+
+  const sec3 =
+    sec("SECCIÓN 3 — Caso Ético") +
+    qa("3.1 Acción Inmediata (15%)", "¿Qué acción tomaría de inmediato al detectar esta situación? Pasos concretos en las próximas 2 horas.", val(data, "etica_p1")) +
+    qa("3.2 Comunicación Profesional (20%)", "¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (correo/mensaje).", val(data, "etica_p2")) +
+    qa("3.3 Análisis de Riesgos (25%)", "¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5.", val(data, "etica_p3")) +
+    qa("3.4 Propuesta de Solución (25%)", "¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, manteniendo orden y cumplimiento?", val(data, "etica_p4")) +
+    qa("3.5 Mejora de Procesos (15%)", "¿Qué mejora de proceso sugeriría para prevenirlo estructuralmente? Controles/sistemas/políticas.", val(data, "etica_p5"));
+
+  const secAuto =
+    sec("Autoevaluación (No puntuada)") +
+    qa("Auto 1", "¿Qué sección le resultó más desafiante y por qué?", val(data, "auto_p1")) +
+    qa("Auto 2", "¿Qué herramientas o conocimientos necesitaría desarrollar para este puesto?", val(data, "auto_p2")) +
+    qa("Auto 3", "¿Qué valor diferencial aportaría en los primeros 90 días?", val(data, "auto_p3"));
+
+  const footer = `
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:12px;">
+          Se adjunta también el PDF generado.
+        </div>
+      </div>
+    </div>
+  `;
+
+  return header + sec1 + sec2 + sec3 + secAuto + footer;
+}
+
 async function buildExamPdf(data: any) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -59,16 +168,16 @@ async function buildExamPdf(data: any) {
   let page = pdf.addPage([pageW, pageH]);
   let y = pageH - margin;
 
+  const drawText = (t: string, size = 11, bold = false, color = rgb(0.1, 0.1, 0.1)) => {
+    page.drawText(t, { x: margin, y, size, font: bold ? fontBold : font, color });
+    y -= size + 6;
+  };
+
   const ensureSpace = (needed: number) => {
     if (y - needed < margin) {
       page = pdf.addPage([pageW, pageH]);
       y = pageH - margin;
     }
-  };
-
-  const drawText = (t: string, size = 11, bold = false, color = rgb(0.1, 0.1, 0.1)) => {
-    page.drawText(t, { x: margin, y, size, font: bold ? fontBold : font, color });
-    y -= size + 6;
   };
 
   const drawSection = (title: string) => {
@@ -140,7 +249,6 @@ async function buildExamPdf(data: any) {
   };
 
   const now = new Date().toISOString();
-  const casos = normalizeSelectedCases(data.caso_seleccionado);
 
   drawText("PRUEBA OBJETIVA — RESPUESTAS", 16, true);
   drawText(`Enviado: ${now}`, 10, false, rgb(0.35, 0.35, 0.35));
@@ -150,8 +258,9 @@ async function buildExamPdf(data: any) {
   drawText(`Inicio: ${val(data, "fecha_inicio")}`, 10);
   y -= 10;
 
-  drawSection("SECCIÓN 1 — Casos Prácticos");
+  const casos = normalizeSelectedCases(data.caso_seleccionado);
 
+  drawSection("SECCIÓN 1 — Casos Prácticos");
   const caseBlock = (id: string, title: string, qs: { t: string; body: string; k: string }[]) => {
     if (!casos.includes(id)) return;
     drawText(title, 12, true, rgb(0.2, 0.2, 0.45));
@@ -212,22 +321,16 @@ export const POST: APIRoute = async ({ request }) => {
 
     const pdfBytes = await buildExamPdf(data);
     const filename = `prueba-objetiva-${(val(data, "nombre") || "candidato").replace(/\s+/g, "_")}.pdf`;
-
     const subject = `Prueba Objetiva — ${val(data, "nombre") || "Candidato"} — ${val(data, "email") || ""}`;
+    const html = buildEmailHtml(data);
 
     const resend = new Resend(RESEND_API_KEY);
 
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
-      to: TO_EMAIL,
-      cc: data.email ? [String(data.email)] : undefined,
+      to: [TO_EMAIL],
       subject,
-      text:
-        `Se adjunta PDF con respuestas.\n\n` +
-        `Nombre: ${val(data, "nombre")}\n` +
-        `Email: ${val(data, "email")}\n` +
-        `Teléfono: ${val(data, "telefono")}\n` +
-        `Inicio: ${val(data, "fecha_inicio")}\n`,
+      html,
       attachments: [
         {
           filename,
