@@ -1,0 +1,579 @@
+---
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prueba Objetiva - Asistente Administrativo Contable</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;line-height:1.6}
+    .container{max-width:900px;margin:0 auto;background:#fff;padding:40px;border-radius:15px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:3px solid #667eea}
+    .header h1{color:#333;font-size:28px;margin-bottom:10px}
+    .header h2{color:#667eea;font-size:20px;font-weight:400}
+    .info-box{background:#f8f9fa;padding:20px;border-left:4px solid #667eea;margin-bottom:30px;border-radius:5px}
+    .info-box h3{color:#667eea;margin-bottom:10px}
+    .info-box ul{margin-left:20px}
+    .info-box li{margin:5px 0}
+    .section{margin-bottom:50px}
+    .section-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:15px 20px;border-radius:8px;margin-bottom:25px}
+    .section-header h2{font-size:22px}
+    .section-header p{margin-top:5px;opacity:.9;font-size:14px}
+    .question-block{background:#f8f9fa;padding:25px;margin-bottom:25px;border-radius:8px;border-left:4px solid #667eea}
+    .question-title{color:#333;font-weight:600;font-size:18px;margin-bottom:15px}
+    .context-box{background:#fff3cd;border-left:4px solid #ffc107;padding:15px;margin:15px 0;border-radius:5px}
+    .context-box h4{color:#856404;margin-bottom:8px}
+    label{display:block;margin:12px 0 5px;color:#555;font-weight:500}
+    input[type="text"],input[type="email"],textarea,select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;transition:border-color .3s}
+    input[type="text"]:focus,input[type="email"]:focus,textarea:focus,select:focus{outline:none;border-color:#667eea}
+    textarea{min-height:120px;resize:vertical}
+    textarea.large{min-height:200px}
+    .radio-group{margin:10px 0}
+    .radio-option{display:flex;align-items:center;padding:10px;margin:8px 0;background:#fff;border:2px solid #e0e0e0;border-radius:6px;cursor:pointer;transition:all .3s}
+    .radio-option:hover{border-color:#667eea;background:#f8f9ff}
+    .radio-option input[type="radio"]{margin-right:10px;cursor:pointer}
+    .case-selector{background:#e3f2fd;padding:20px;border-radius:8px;margin-bottom:30px}
+    .case-selector h3{color:#1976d2;margin-bottom:15px}
+    .checkbox-group{display:flex;flex-direction:column;gap:10px}
+    .checkbox-option{display:flex;align-items:center;padding:12px;background:#fff;border:2px solid #e0e0e0;border-radius:6px;cursor:pointer;transition:all .3s}
+    .checkbox-option:hover{border-color:#1976d2;background:#f0f8ff}
+    .checkbox-option input[type="checkbox"]{margin-right:10px;cursor:pointer}
+    .warning{background:#fff3e0;border-left:4px solid #ff9800;padding:15px;margin:20px 0;border-radius:5px}
+    .warning strong{color:#e65100}
+    .submit-section{background:#f8f9fa;padding:30px;border-radius:8px;text-align:center;margin-top:40px}
+    .submit-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:15px 40px;border:none;border-radius:8px;font-size:18px;font-weight:600;cursor:pointer;transition:transform .3s,box-shadow .3s}
+    .submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(102,126,234,.4)}
+    .progress-bar{position:fixed;top:0;left:0;width:100%;height:4px;background:#e0e0e0;z-index:1000}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#667eea 0%,#764ba2 100%);width:0%;transition:width .3s}
+    .required{color:#d32f2f}
+    @media (max-width:768px){
+      .container{padding:20px}
+      .header h1{font-size:24px}
+      .section-header h2{font-size:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>PRUEBA OBJETIVA</h1>
+      <h2>Asistente Administrativo Contable</h2>
+    </div>
+
+    <div class="info-box">
+      <h3>📋 Información General</h3>
+      <ul>
+        <li><strong>Tiempo máximo:</strong> 48 horas desde recepción</li>
+        <li><strong>Formato:</strong> Formulario web (guarda automáticamente)</li>
+        <li><strong>Puntaje mínimo aprobatorio:</strong> 70%</li>
+      </ul>
+    </div>
+
+    <form id="evaluationForm">
+      <div class="section">
+        <div class="section-header"><h2>👤 Datos Personales</h2></div>
+        <div class="question-block">
+          <label>Nombre completo <span class="required">*</span></label>
+          <input type="text" name="nombre" required>
+
+          <label>Correo electrónico <span class="required">*</span></label>
+          <input type="email" name="email" required>
+
+          <label>Teléfono <span class="required">*</span></label>
+          <input type="text" name="telefono" required>
+
+          <label>Fecha y hora de inicio de la prueba <span class="required">*</span></label>
+          <input type="text" name="fecha_inicio" required>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>📊 SECCIÓN 1 — Casos Prácticos Aplicados</h2>
+          <p>Ponderación: 50% | Debe responder ÚNICAMENTE 2 de los 3 casos</p>
+        </div>
+
+        <div class="case-selector">
+          <h3>⚠️ IMPORTANTE: Seleccione 2 casos para responder</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-option">
+              <input type="checkbox" name="caso_seleccionado" value="caso1">
+              <span><strong>Caso 1:</strong> Programa de Aceleración – Sector Agrícola (3 startups)</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="caso_seleccionado" value="caso2">
+              <span><strong>Caso 2:</strong> Programa de Acompañamiento con Capital Semilla (25 MIPYMES)</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="caso_seleccionado" value="caso3">
+              <span><strong>Caso 3:</strong> Proyecto de Digitalización con ERP (200 MIPYMES)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="question-block" id="caso1_block" style="display:none;">
+          <div class="question-title">📦 CASO 1: Programa de Aceleración – Sector Agrícola</div>
+          <div class="context-box">
+            <h4>Contexto:</h4>
+            <p>Una organización ejecuta un programa de aceleración para <strong>3 startups del sector agrícola</strong> durante <strong>4 meses</strong>.</p>
+            <p><strong>Cada startup recibe:</strong></p>
+            <ul>
+              <li>USD $5,000 en servicios técnicos (mentores, consultores)</li>
+              <li>USD $3,000 en capital operativo reembolsable</li>
+              <li>Acceso a talleres y eventos del programa</li>
+            </ul>
+          </div>
+
+          <label>1.1 Documentación y Control Inicial (33%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué documentos administrativos y contables mínimos organizaría desde el inicio del proyecto? Liste al menos 6 documentos clave y explique brevemente para qué sirve cada uno.</p>
+          <textarea name="caso1_p1" class="large"></textarea>
+
+          <label>1.2 Organización Digital (33%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Proponga una estructura de carpetas en la nube para este programa. Incluya: jerarquía de carpetas, nomenclatura de archivos y permisos de acceso.</p>
+          <textarea name="caso1_p2" class="large"></textarea>
+
+          <label>1.3 Control Presupuestario (34%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Explique cómo llevaría el control de egresos por startup para no exceder los montos asignados. Describa: herramientas, frecuencia de actualización, indicadores de alerta y cómo reportaría el status.</p>
+          <textarea name="caso1_p3" class="large"></textarea>
+        </div>
+
+        <div class="question-block" id="caso2_block" style="display:none;">
+          <div class="question-title">💰 CASO 2: Programa de Capital Semilla – 25 MIPYMES</div>
+          <div class="context-box">
+            <h4>Contexto:</h4>
+            <p>Programa de acompañamiento a <strong>25 mipymes</strong>, cada una recibe entre <strong>USD $1,000 y USD $2,000</strong> de capital semilla no reembolsable.</p>
+            <p><strong>Condiciones:</strong></p>
+            <ul>
+              <li>Capital en 2 desembolsos (50% inicial, 50% al cumplir hitos)</li>
+              <li>Deben presentar comprobantes de uso de fondos</li>
+              <li>Plazo: 6 meses | Presupuesto total: USD $37,500</li>
+            </ul>
+          </div>
+
+          <label>2.1 Herramienta de Control (30%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué herramienta(s) utilizaría para el control administrativo y financiero? Justifique considerando: volumen, reportes, colaboración y costos.</p>
+          <textarea name="caso2_p1" class="large"></textarea>
+
+          <label>2.2 Diseño de Sistema de Control (40%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Diseñe una tabla de control maestro. Especifique: campos/columnas (mínimo 10), tipo de información y cómo usaría esta tabla para tomar decisiones.</p>
+          <textarea name="caso2_p2" class="large"></textarea>
+
+          <label>2.3 Gestión de Incumplimientos (30%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;"><strong>Situación:</strong> Mes 3, 8 mipymes (32%) no han entregado comprobantes vencidos hace 15 días. ¿Cómo actuaría? Describa: acciones inmediatas, plan de seguimiento, punto de escalación y medidas preventivas.</p>
+          <textarea name="caso2_p3" class="large"></textarea>
+        </div>
+
+        <div class="question-block" id="caso3_block" style="display:none;">
+          <div class="question-title">💻 CASO 3: Digitalización con ERP – 200 MIPYMES</div>
+          <div class="context-box">
+            <h4>Contexto:</h4>
+            <p>Proyecto de <strong>digitalización administrativa</strong> con ERP para <strong>200 mipymes</strong> durante <strong>12 meses</strong>.</p>
+            <p><strong>Componentes:</strong> Implementación, capacitación, soporte técnico y migración de datos.</p>
+          </div>
+
+          <label>3.1 Identificación de Riesgos (30%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Mencione al menos 5 riesgos administrativos o contables. Para cada uno: descripción, impacto (alto/medio/bajo) y medida preventiva.</p>
+          <textarea name="caso3_p1" class="large"></textarea>
+
+          <label>3.2 Información Crítica en el ERP (35%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué información debe registrarse obligatoriamente por cada mipyme? Liste al menos 8 tipos de información y justifique por qué cada una es crítica.</p>
+          <textarea name="caso3_p2" class="large"></textarea>
+
+          <label>3.3 Gestión del Tiempo y Prioridades (35%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Con 200 mipymes: a) ¿Cómo organizaría su tiempo? b) ¿Estrategia para no atrasarse? c) ¿Qué delegaría/automatizaría? d) ¿Cómo mediría su avance?</p>
+          <textarea name="caso3_p3" class="large"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>📚 SECCIÓN 2 — Conocimientos Técnicos</h2>
+          <p>Ponderación: 30% | 10 preguntas con justificación (3% cada una)</p>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 1: IVA en El Salvador</div>
+          <p>En El Salvador, el IVA se declara y paga generalmente de forma:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p1" value="a" required><span>a) Trimestral</span></label>
+            <label class="radio-option"><input type="radio" name="p1" value="b"><span>b) Anual</span></label>
+            <label class="radio-option"><input type="radio" name="p1" value="c"><span>c) Mensual</span></label>
+            <label class="radio-option"><input type="radio" name="p1" value="d"><span>d) Semestral</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p1_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 2: Documentación Legal</div>
+          <p>¿Cuál documento respalda <strong>legalmente</strong> una venta de bienes o servicios?</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p2" value="a" required><span>a) Cotización</span></label>
+            <label class="radio-option"><input type="radio" name="p2" value="b"><span>b) Factura o comprobante fiscal</span></label>
+            <label class="radio-option"><input type="radio" name="p2" value="c"><span>c) Orden de compra interna</span></label>
+            <label class="radio-option"><input type="radio" name="p2" value="d"><span>d) Recibo simple</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p2_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 3: Conciliación Bancaria</div>
+          <p>Una conciliación bancaria sirve principalmente para:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p3" value="a" required><span>a) Calcular impuestos</span></label>
+            <label class="radio-option"><input type="radio" name="p3" value="b"><span>b) Comparar los registros contables con el estado bancario</span></label>
+            <label class="radio-option"><input type="radio" name="p3" value="c"><span>c) Elaborar presupuestos</span></label>
+            <label class="radio-option"><input type="radio" name="p3" value="d"><span>d) Controlar inventarios</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p3_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 4: Cuentas por Pagar</div>
+          <p>¿Cuál es una buena práctica en el control de cuentas por pagar?</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p4" value="a" required><span>a) Pagar sin revisar documentación</span></label>
+            <label class="radio-option"><input type="radio" name="p4" value="b"><span>b) Registrar pagos solo al final del mes</span></label>
+            <label class="radio-option"><input type="radio" name="p4" value="c"><span>c) Verificar factura, autorización y fecha de vencimiento</span></label>
+            <label class="radio-option"><input type="radio" name="p4" value="d"><span>d) Pagar únicamente cuando el proveedor insiste</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p4_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 5: Sistemas ERP</div>
+          <p>En un entorno de trabajo con ERP, la principal ventaja es:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p5" value="a" required><span>a) Eliminar la contabilidad</span></label>
+            <label class="radio-option"><input type="radio" name="p5" value="b"><span>b) Centralizar y automatizar la información</span></label>
+            <label class="radio-option"><input type="radio" name="p5" value="c"><span>c) Reducir responsabilidades</span></label>
+            <label class="radio-option"><input type="radio" name="p5" value="d"><span>d) Evitar controles internos</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p5_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 6: Retenciones de Renta</div>
+          <p>Un consultor independiente emite factura por $2,500 por servicios profesionales. Como empresa contratante en El Salvador, debe aplicar:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p6" value="a" required><span>a) No aplicar ninguna retención</span></label>
+            <label class="radio-option"><input type="radio" name="p6" value="b"><span>b) Retención del 10% sobre el monto neto ($250)</span></label>
+            <label class="radio-option"><input type="radio" name="p6" value="c"><span>c) Retención del 13% de IVA ($325)</span></label>
+            <label class="radio-option"><input type="radio" name="p6" value="d"><span>d) Retención del 10% sobre el monto con IVA incluido</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p6_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 7: Clasificación de Gastos</div>
+          <p>El pago de $800 por alquiler mensual de oficina debe clasificarse contablemente como:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p7" value="a" required><span>a) Activo corriente</span></label>
+            <label class="radio-option"><input type="radio" name="p7" value="b"><span>b) Gasto de administración u operación</span></label>
+            <label class="radio-option"><input type="radio" name="p7" value="c"><span>c) Pasivo corriente</span></label>
+            <label class="radio-option"><input type="radio" name="p7" value="d"><span>d) Costo de ventas</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p7_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 8: Control Presupuestario</div>
+          <p>Tiene un proyecto con presupuesto de $50,000. A mitad de período ha ejecutado $32,000. ¿Qué porcentaje de ejecución tiene?</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p8" value="a" required><span>a) 32%</span></label>
+            <label class="radio-option"><input type="radio" name="p8" value="b"><span>b) 64%</span></label>
+            <label class="radio-option"><input type="radio" name="p8" value="c"><span>c) 68%</span></label>
+            <label class="radio-option"><input type="radio" name="p8" value="d"><span>d) 50%</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p8_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 9: Facturación con IVA</div>
+          <p>Debe facturar servicios de consultoría por $4,000. ¿Cuál es el monto total a cobrar (incluyendo IVA 13%)?</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p9" value="a" required><span>a) $4,000</span></label>
+            <label class="radio-option"><input type="radio" name="p9" value="b"><span>b) $4,130</span></label>
+            <label class="radio-option"><input type="radio" name="p9" value="c"><span>c) $4,520</span></label>
+            <label class="radio-option"><input type="radio" name="p9" value="d"><span>d) $4,680</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p9_just" rows="3" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <div class="question-title">Pregunta 10: Organización Documental</div>
+          <p>Para organizar 300 facturas de múltiples proveedores y proyectos en Google Drive, la estructura MÁS eficiente sería:</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="p10" value="a" required><span>a) Una carpeta con todas las facturas ordenadas cronológicamente</span></label>
+            <label class="radio-option"><input type="radio" name="p10" value="b"><span>b) Carpetas por año &gt; mes &gt; proveedor</span></label>
+            <label class="radio-option"><input type="radio" name="p10" value="c"><span>c) Carpetas por proyecto &gt; tipo de documento &gt; período</span></label>
+            <label class="radio-option"><input type="radio" name="p10" value="d"><span>d) Carpetas por rango de monto</span></label>
+          </div>
+          <label>Justificación (2-3 líneas):</label>
+          <textarea name="p10_just" rows="3" required></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>⚖️ SECCIÓN 3 — Caso de Criterio Ético-Profesional</h2>
+          <p>Ponderación: 20% | Responda reflexivamente</p>
+        </div>
+
+        <div class="warning">
+          <strong>📌 Importante:</strong> No hay respuestas "correctas" o "incorrectas". Se evaluará razonamiento lógico, principios éticos, comunicación y madurez profesional.
+        </div>
+
+        <div class="context-box" style="background:#ffebee;border-left-color:#c62828;">
+          <h4>🚨 CASO ÉTICO: Cierre de Mes y Presión Operativa</h4>
+          <p><strong>Escenario:</strong></p>
+          <p>Es 28 de marzo, último día hábil del mes. Está realizando el cierre contable mensual para preparar el informe financiero que su supervisor debe presentar mañana a las 9:00 AM a la Junta Directiva.</p>
+          <p><strong>Al revisar las transacciones detecta que:</strong></p>
+          <ul>
+            <li>Se realizó un pago de <strong>$3,200</strong> a un proveedor el 15 de marzo</li>
+            <li>El pago está en el sistema bancario (ya salió el dinero)</li>
+            <li><strong>NO existe factura ni comprobante fiscal</strong> que respalde este pago</li>
+            <li>Concepto: "Servicios de consultoría - Proyecto XYZ"</li>
+          </ul>
+          <p>Al consultar al coordinador del Proyecto XYZ, le responde:</p>
+          <blockquote style="background:white;padding:10px;border-left:3px solid #666;margin:10px 0;">
+            <em>"Sí, sí, ese pago está bien, era urgente. El proveedor me dijo que me manda la factura esta semana. No te preocupes, resuélvelo después del cierre para no atrasar el informe. La Junta está esperando números cerrados mañana temprano."</em>
+          </blockquote>
+          <p><strong>Usted sabe que:</strong></p>
+          <ul>
+            <li>Las políticas internas requieren factura ANTES de procesar pagos</li>
+            <li>Los informes a Junta deben reflejar situación real y documentada</li>
+            <li>Este no es el primer caso similar con este coordinador</li>
+            <li>Su supervisor está en reunión externa y no responde</li>
+            <li>Son las 4:30 PM y sale a las 6:00 PM</li>
+          </ul>
+        </div>
+
+        <div class="question-block">
+          <label>3.1 Acción Inmediata (15%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué acción tomaría de inmediato al detectar esta situación? Sea específico sobre los pasos concretos en las próximas 2 horas.</p>
+          <textarea name="etica_p1" class="large" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>3.2 Comunicación Profesional (20%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Cómo comunicaría este hallazgo al coordinador? Redacte textualmente (como correo/mensaje) lo que le diría, demostrando profesionalismo y asertividad.</p>
+          <textarea name="etica_p2" class="large" required placeholder="Estimado/a [coordinador/a]..."></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>3.3 Análisis de Riesgos (25%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué riesgos administrativos, contables, legales y éticos identifica? Liste al menos 5 riesgos concretos.</p>
+          <textarea name="etica_p3" class="large" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>3.4 Propuesta de Solución (25%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">¿Qué alternativa concreta propondría para no detener el proyecto ni el informe, pero mantener orden, transparencia y cumplimiento? Sea creativo pero realista.</p>
+          <textarea name="etica_p4" class="large" required></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>3.5 Mejora de Procesos (15%)</label>
+          <p style="color:#666;font-size:14px;margin-bottom:10px;">Si esta situación se repite con diferentes coordinadores, ¿qué mejora de proceso sugeriría para prevenirla estructuralmente? Piense en controles, sistemas o políticas.</p>
+          <textarea name="etica_p5" class="large" required></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>💭 Autoevaluación (No puntuada)</h2>
+          <p>Nos ayuda a conocerle mejor</p>
+        </div>
+        <div class="question-block">
+          <label>1. ¿Qué sección le resultó más desafiante y por qué?</label>
+          <textarea name="auto_p1" rows="4"></textarea>
+          <label>2. ¿Qué herramientas o conocimientos necesitaría desarrollar para este puesto?</label>
+          <textarea name="auto_p2" rows="4"></textarea>
+          <label>3. Si fuera contratado/a, ¿qué valor diferencial aportaría en los primeros 90 días?</label>
+          <textarea name="auto_p3" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="submit-section">
+        <div class="warning" style="text-align:left;margin-bottom:20px;">
+          <h3 style="margin-bottom:10px;">📝 Declaración de Integridad</h3>
+          <p>Al enviar esta prueba, certifico que:</p>
+          <ul style="margin:10px 0 10px 20px;">
+            <li>Las respuestas son de mi autoría y reflejan mi razonamiento personal</li>
+            <li>No he copiado ni plagiado contenido de terceros</li>
+            <li>Entiendo que cualquier deshonestidad académica resulta en descalificación automática</li>
+          </ul>
+        </div>
+
+        <label style="display:flex;align-items:center;justify-content:center;margin:20px 0;">
+          <input type="checkbox" name="declaracion" required style="width:auto;margin-right:10px;">
+          <span>Acepto la declaración de integridad <span class="required">*</span></span>
+        </label>
+
+        <button type="submit" class="submit-btn">📤 Enviar Prueba</button>
+        <p style="margin-top:15px;color:#666;font-size:14px;">Al hacer clic en "Enviar Prueba", sus respuestas se guardarán automáticamente.</p>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function toggleCaseBlocks() {
+      const c1 = document.querySelector('input[name="caso_seleccionado"][value="caso1"]')?.checked;
+      const c2 = document.querySelector('input[name="caso_seleccionado"][value="caso2"]')?.checked;
+      const c3 = document.querySelector('input[name="caso_seleccionado"][value="caso3"]')?.checked;
+
+      const b1 = document.getElementById('caso1_block');
+      const b2 = document.getElementById('caso2_block');
+      const b3 = document.getElementById('caso3_block');
+
+      if (b1) b1.style.display = c1 ? 'block' : 'none';
+      if (b2) b2.style.display = c2 ? 'block' : 'none';
+      if (b3) b3.style.display = c3 ? 'block' : 'none';
+    }
+
+    function enforceMaxTwo(checkbox) {
+      const all = Array.from(document.querySelectorAll('input[name="caso_seleccionado"]'));
+      const checked = all.filter(cb => cb.checked);
+      if (checked.length > 2) {
+        checkbox.checked = false;
+        alert('⚠️ Solo puede seleccionar 2 casos. Por favor, deseleccione uno antes de elegir otro.');
+      }
+    }
+
+    function updateProgress() {
+      const form = document.getElementById('evaluationForm');
+      if (!form) return;
+
+      const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+      let filled = 0;
+
+      inputs.forEach(input => {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+          const name = input.name;
+          if (form.querySelector(`input[name="${name}"]:checked`)) filled++;
+        } else if (input.value.trim() !== '') {
+          filled++;
+        }
+      });
+
+      const progress = (filled / inputs.length) * 100;
+      const bar = document.getElementById('progressFill');
+      if (bar) bar.style.width = progress + '%';
+    }
+
+    function autoSave() {
+      const form = document.getElementById('evaluationForm');
+      if (!form) return;
+
+      const formData = new FormData(form);
+      const data = {};
+      for (let [key, value] of formData.entries()) data[key] = value;
+      localStorage.setItem('evaluacionGuardada', JSON.stringify(data));
+    }
+
+    function loadSavedData() {
+      const saved = localStorage.getItem('evaluacionGuardada');
+      if (!saved) return;
+
+      const data = JSON.parse(saved);
+      Object.keys(data).forEach(key => {
+        const nodes = document.querySelectorAll(`[name="${key}"]`);
+        if (!nodes.length) return;
+
+        nodes.forEach(el => {
+          if (el.type === 'checkbox' || el.type === 'radio') {
+            if (el.value === data[key]) el.checked = true;
+          } else {
+            el.value = data[key];
+          }
+        });
+      });
+
+      toggleCaseBlocks();
+      updateProgress();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSavedData();
+
+      const caseCheckboxes = document.querySelectorAll('input[name="caso_seleccionado"]');
+      caseCheckboxes.forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          enforceMaxTwo(e.currentTarget);
+          toggleCaseBlocks();
+          updateProgress();
+        });
+      });
+
+      setInterval(autoSave, 30000);
+
+      const form = document.getElementById('evaluationForm');
+      form.addEventListener('input', updateProgress);
+      form.addEventListener('change', updateProgress);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const checked = document.querySelectorAll('input[name="caso_seleccionado"]:checked');
+        if (checked.length !== 2) {
+          alert('⚠️ Debe seleccionar exactamente 2 casos de la Sección 1.');
+          return;
+        }
+
+        const formData = new FormData(form);
+        const payload = {};
+        for (let [key, value] of formData.entries()) {
+          if (payload[key]) {
+            payload[key] = Array.isArray(payload[key]) ? [...payload[key], value] : [payload[key], value];
+          } else {
+            payload[key] = value;
+          }
+        }
+
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const out = await res.json();
+        if (!res.ok) {
+          alert(out?.message || 'Error enviando la prueba.');
+          return;
+        }
+
+        alert('✅ Prueba enviada exitosamente!\n\nRecibirá una confirmación por correo electrónico.\n\nMuchas gracias por su tiempo.');
+        localStorage.removeItem('evaluacionGuardada');
+        form.reset();
+        toggleCaseBlocks();
+        updateProgress();
+      });
+
+      window.addEventListener('beforeunload', (e) => {
+        const nameFilled = (document.querySelector('input[name="nombre"]')?.value || '') !== '';
+        if (nameFilled) {
+          autoSave();
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      toggleCaseBlocks();
+      updateProgress();
+    });
+  </script>
+</body>
+</html>
